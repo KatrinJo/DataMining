@@ -42,7 +42,8 @@ if(isset($_POST["attr"])) { // 判断通过POST方式传递过来的参数是否
     </ul>
 </div>
 <div>
-    <button onclick="location.href = 'data-scatter-selectattr.php'+location.search">选择绘制散点图属性</button>
+    <button onclick="location.href = 'data-geometric-selectattr.php'+location.search">分析时间序列</button>
+    <button onclick="location.href = 'data-scatter-selectattr.php'+location.search">绘制散点图</button>
 <!--    阈值=<input id="threshold">%-->
     <button onclick="location.href = 'data-mining-select.php'">数据挖掘</button>
 <!--    +'threshold='+$('#threshold').val()-->

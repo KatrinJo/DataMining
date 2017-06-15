@@ -16,7 +16,7 @@ $handle = fopen($fileName, "r"); // 打开文件
 // Read first (headers) record only)
 $data = fgetcsv($handle, 1000, ",");
 
-$_SESSION['attrAllType'] = [];
+$_SESSION['attrAllType'] = []; // $_SESSION['attrAllType']['age']='INT'
 ?>
 <html>
 <head>
