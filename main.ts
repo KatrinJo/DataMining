@@ -1,7 +1,7 @@
-var currentData;
-var isZscore = false;
-var currentVarName;
-var bars = {};
+let currentData;
+let isZscore = false;
+let currentVarName;
+let bars = {};
 
 // 对每一个属性绘制直方图
 // varName表示属性名
@@ -10,21 +10,23 @@ var bars = {};
 //              数组的内容是：当前用于坐标值的属性值，原数据库中的属性值，关于这个属性值的统计量
 //      type(key)：表示的是这个属性的类型用作特殊处理
 function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value: number}[], type:string}) {
-    var data = data0.data;
+    let data = data0.data;
+
     if(data0.type === 'DECIMAL(20,10)') { // 数据的类型是小数，传过来的是string类型需要转换成小数
         data = data.map(function (d) {
             return {key:parseFloat(d.key),originalKey:d.key,value:d.value}; // 将属性值经过parseFloat得到小数形式
         })
     }
-    if(typeof data[0].key === 'number' && data.length > 40) { // 属性值不同的过多，需要分bins
+
+    if((typeof data[0].key === 'number' || data0.type === 'DATE') && data.length > 40) { // 属性值不同的过多，需要分bins
         // 改动data，新建data替代，用string代替作为新data的key
-        var dataCapacity = data.length;
-        var bins = 20; // 分成20个bin
-        var binCapacity = Math.ceil(dataCapacity/bins); // 每个bin里存放的属性值区间长度
-        var newData = []; // 存放新的data数组
-        var newKey = ""; // 新的key值
-        var newValue = 0; // 新的value值
-        var i = 0;
+        let dataCapacity = data.length;
+        let bins = 20; // 分成20个bin
+        let binCapacity = Math.ceil(dataCapacity/bins); // 每个bin里存放的属性值区间长度
+        let newData = []; // 存放新的data数组
+        let newKey = ""; // 新的key值
+        let newValue = 0; // 新的value值
+        let i = 0;
         do {
             newValue += data[i].value; // 在这个区间内的统计量加和
             if(((i+1) % binCapacity == 0) || ((i+1) == dataCapacity)) { // 结束一个bin
@@ -41,12 +43,12 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
 //        console.log(newData);
     }
     if(typeof data[0].key === 'number') { // 属性的类型为整数or小数类型
-        var m = d3.max(data, function (item) { return item.key }); // 得到属性值的最大值
-        var my = d3.max(data, function (item) { return item.value });// 得到属性值的统计量的最大值
-        var minX = d3.min(data, function (item) { return item.key });// 得到属性值的最小值
+        let m = d3.max(data, function (item) { return item.key }); // 得到属性值的最大值
+        let my = d3.max(data, function (item) { return item.value });// 得到属性值的统计量的最大值
+        let minX = d3.min(data, function (item) { return item.key });// 得到属性值的最小值
 
         if(localStorage.getItem(varName) == 'zscore') { // 确定是否需要归一化
-            for(var i = 0; i < data.length; i++) {
+            for(let i = 0; i < data.length; i++) {
                 data[i].originalKey = data[i].originalKey || data[i].key; // 记录原属性值
                 if(minX === m) // 归一化特殊处理
                     data[i].key = 1;
@@ -54,38 +56,38 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
                     data[i].key = (data[i].key-minX)/(m-minX);
             }
         }
-        // var minY = d3.min(data, function (item) { return item.value });
+        // let minY = d3.min(data, function (item) { return item.value });
 
-        var keys = data.map(function (item) { return item.key;}); // 得到key的数组
+        let keys = data.map(function (item) { return item.key;}); // 得到key的数组
 
-        var formatCount = d3.format(",.0f");
+        let formatCount = d3.format(",.0f");
         //在 body 里添加一个 SVG 画布
 
-        var body = d3.select("body"); // 选择在实际页面中的body
-        var heightText = 60; // 给字预留的高度
-        var svg = body.append("svg").attr("width",380).attr("height",260+heightText).on("mouseover",function(){
+        let body = d3.select("body"); // 选择在实际页面中的body
+        let heightText = 60; // 给字预留的高度
+        let svg = body.append("svg").attr("width",380).attr("height",260+heightText).on("mouseover",function(){
             currentVarName = varName;
         });
         //画布周边的空白
-        var margin = {top: 5, right: 30, bottom: 20+heightText, left: 30};
+        let margin = {top: 5, right: 30, bottom: 20+heightText, left: 30};
         //画布大小
-        var width = +svg.attr("width") - margin.left - margin.right;
-        var height = +svg.attr("height") - margin.top - margin.bottom;
-        var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        let width = +svg.attr("width") - margin.left - margin.right;
+        let height = +svg.attr("height") - margin.top - margin.bottom;
+        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         //"translate(" + x(d.key) + "," + y(d.value) + ")"
         //x轴的比例尺
-        var x = d3.scaleBand()
+        let x = d3.scaleBand()
             .range([0, width]).domain(keys).paddingInner(0.2);
         if(localStorage.getItem(varName) == 'zscore') {
 
         }
         //y轴的比例尺
-        var y = d3.scaleLinear()
+        let y = d3.scaleLinear()
             .domain([0, my])
             .range([height, 0]);
 
         // bar表示直方图的每个竖条
-        var bar = g.selectAll(".bar")
+        let bar = g.selectAll(".bar")
             .data(data)
             .enter().append("g")
             .attr("class", "bar")
@@ -114,14 +116,14 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
             })
             .on("click", function(d){ // 点击事件
                 if(location.search.length > 0) { // 当前条件不为空
-                    var tmp2 = location.search.split("?"); // 编写路径条件
-                    var tmp = tmp2[1].split("&");
-                    var newSearch = "";
-                    var flag = 0;
-                    for(var i = 0; i < tmp.length; i++) {
+                    let tmp2 = location.search.split("?"); // 编写路径条件
+                    let tmp = tmp2[1].split("&");
+                    let newSearch = "";
+                    let flag = 0;
+                    for(let i = 0; i < tmp.length; i++) {
                         if(i > 0)
                             newSearch = newSearch + "&";
-                        var t = tmp[i].split("=");
+                        let t = tmp[i].split("=");
                         if(t[0] == varName) {
                             flag = 1;
                             newSearch = newSearch + varName + "=" + (d.originalKey || d.key);
@@ -186,38 +188,38 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
                 location.reload();
             });
 
-        var gtext = g.append("text").attr("fill","red").attr("transform","scale(1)");
+        let gtext = g.append("text").attr("fill","red").attr("transform","scale(1)");
     }
     else if(typeof data[0].key === 'string'){ // 属性类型为字符串，大部分与上面相同
-        var m = d3.max(data, function (item) { return item.key });
-        var my = d3.max(data, function (item) { return item.value });
+        let m = d3.max(data, function (item) { return item.key });
+        let my = d3.max(data, function (item) { return item.value });
 
-        var keys = data.map(function (item) { return item.key });
+        let keys = data.map(function (item) { return item.key });
 
-        var formatCount = d3.format(",.0f");
+        let formatCount = d3.format(",.0f");
         //在 body 里添加一个 SVG 画布
 
-        var body = d3.select("body");
-        var heightText = 60;
-        var svg = body.append("svg").attr("width",380).attr("height",260+heightText).on("mouseover",function(){
+        let body = d3.select("body");
+        let heightText = 60;
+        let svg = body.append("svg").attr("width",380).attr("height",260+heightText).on("mouseover",function(){
             currentVarName = varName;
         });
         //画布周边的空白
-        var margin = {top: 5, right: 30, bottom: 20+heightText, left: 40};
+        let margin = {top: 5, right: 30, bottom: 20+heightText, left: 40};
         //画布大小
-        var width = +svg.attr("width") - margin.left - margin.right;
-        var height = +svg.attr("height") - margin.top - margin.bottom;
-        var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        let width = +svg.attr("width") - margin.left - margin.right;
+        let height = +svg.attr("height") - margin.top - margin.bottom;
+        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         //"translate(" + x(d.key) + "," + y(d.value) + ")"
         //x轴的比例尺
-        var x = d3.scaleBand()
+        let x = d3.scaleBand()
             .range([0, width]).domain(keys).paddingInner(0.2);
         //y轴的比例尺
-        var y = d3.scaleLinear()
+        let y = d3.scaleLinear()
             .domain([0, my])
             .range([height, 0]);
 
-        var bar = g.selectAll(".bar")
+        let bar = g.selectAll(".bar")
             .data(data)
             .enter().append("g")
             .attr("class", "bar")
@@ -246,14 +248,14 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
             })
             .on("click", function(d){
                 if(location.search.length > 0) {
-                    var tmp2 = location.search.split("?");
-                    var tmp = tmp2[1].split("&");
-                    var newSearch = "";
-                    var flag = 0;
-                    for(var i = 0; i < tmp.length; i++) {
+                    let tmp2 = location.search.split("?");
+                    let tmp = tmp2[1].split("&");
+                    let newSearch = "";
+                    let flag = 0;
+                    for(let i = 0; i < tmp.length; i++) {
                         if(i > 0)
                             newSearch = newSearch + "&";
-                        var t = tmp[i].split("=");
+                        let t = tmp[i].split("=");
                         if(t[0] == varName) {
                             flag = 1;
                             newSearch = newSearch + varName + "=" + d.key;
@@ -293,16 +295,16 @@ function drawHistogram(varName, data0:{ data:{key: any, originalKey?: any, value
             .attr("text-anchor", "middle")
             .text(varName);
 
-        var gtext = g.append("text").attr("fill","red").attr("transform","scale(1)");
+        let gtext = g.append("text").attr("fill","red").attr("transform","scale(1)");
 
     }
 }
 
 
-var clickFunction = function(error, data) {
+let clickFunction = function(error, data) {
     currentData = data;
-    var result: {[col: string]: { data:{key: any, value: number}[], type:string}} = <any>data;
-    for (var varName in result)
+    let result: {[col: string]: { data:{key: any, value: number}[], type:string}} = <any>data;
+    for (let varName in result)
         drawHistogram(varName, result[varName]);
 };
 

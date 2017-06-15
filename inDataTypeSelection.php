@@ -19,6 +19,7 @@ $_SESSION['fileName'] = $name;
 $handle = fopen($_FILES['import-data']['tmp_name'], "r");
 // Read first (headers) record only)
 $data = fgetcsv($handle, 1000, ",");
+$dataDisplay = fgetcsv($handle, 1000, ",");
 
 $check = 'select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=\'csv_db\' and TABLE_NAME=\'tmpdata\'';
 $res = $db->query($check);
@@ -37,18 +38,30 @@ if($res)
 </head>
 <body>
 <div>
+    注：目前支持的日期格式为DATE——"yyyy-mm-dd"。
     <form enctype="multipart/form-data" action="inDataSelection.php" method="post">
-    <?php
-        for($i=0;$i<count($data); $i++) {?>
-            <p>
-                <?php echo $data[$i];?>
-                <select name="<?=$data[$i]?>" id="select">
-                    <option value="VARCHAR(50)">varchar</option>
-                    <option value="INT(11)">int</option>
-                    <option value="DECIMAL(20,10)">decimal</option>
-                </select>
-            </p>
-    <?php }
+        <table>
+        <?php
+            for($i=0;$i<count($data); $i++) {?>
+                <tr>
+                    <td>
+                        <?=$data[$i];?>
+                    </td>
+                    <td>
+                        <select name="<?=$data[$i]?>" id="select">
+                            <option value="VARCHAR(50)">varchar</option>
+                            <option value="INT(11)">int</option>
+                            <option value="DECIMAL(20,10)">decimal</option>
+                            <option value="DATE">date</option>
+                        </select>
+                    </td>
+                    <td>
+                        （第一项为<?=$dataDisplay[$i]?>）
+                    </td>
+                </tr>
+        <?php } ?>
+        </table>
+        <?php
     fclose($handle);
     $_SESSION['uploads_dir'] = 'uploads'; // 临时文件存放
     $uploads_dir = 'uploads';

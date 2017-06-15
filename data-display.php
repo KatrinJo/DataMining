@@ -35,17 +35,24 @@ foreach($_GET as $a => $b) { // 在sql查询语句中的条件语句构成，通
             array_push($params,$tmp[0]); // 将value值push进数组
         }
         else { // 这个属性的确定值是经过分bin处理后的一个范围
+            $tmp2 = explode('-',$tmp);
             $part .= $a.'>=? AND '.$a.'<=?';
-            $t1 = 0 + $tmp[0];
-            array_push($params,$t1);
-            $t2 = $tmp[1];//0.0001 + $tmp[1]
-            array_push($params,$t2);
-            $t1 = explode('.',$t1); // 将$t1这个字符串根据'.'划分，用来判断是小数类型还是整数类型
-            $t2 = explode('.',$t2); // 将$t2这个字符串根据'.'划分
-            if(count($t1) > 1 || count($t2) > 1)// 是小数类型
-                $paramlist .= "dd";
-            else// 是整数类型
-                $paramlist .= "ii";
+            if(count($tmp2) == 1) {
+                $t1 = 0 + $tmp[0];
+                array_push($params,$t1);
+                $t2 = $tmp[1];//0.0001 + $tmp[1]
+                array_push($params,$t2);
+                $t1 = explode('.',$t1); // 将$t1这个字符串根据'.'划分，用来判断是小数类型还是整数类型
+                $t2 = explode('.',$t2); // 将$t2这个字符串根据'.'划分
+                if(count($t1) > 1 || count($t2) > 1)// 是小数类型
+                    $paramlist .= "dd";
+                else// 是整数类型
+                    $paramlist .= "ii";
+            }
+            else { // 是date类型
+                array_push($params,$tmp[0],$tmp[1]);
+                $paramlist .= "ss";
+            }
         }
     }
     else if(is_float($b) || is_double($b)) { // 属性类型为小数，事实上不会进入，因为参数是以string形式传递过来的

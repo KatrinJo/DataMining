@@ -13,7 +13,7 @@ error_reporting(E_ERROR);
 session_start();
 //mysqli_report(MYSQLI_ASSOC);
 mysqli_report(MYSQLI_REPORT_ERROR);
-$db = mysqli_connect('localhost', 'test', '', 'bank'); //the last is the name od database
+$db = mysqli_connect('localhost', 'root', '', 'csv_db'); //the last is the name od database
 
 if ($db->connect_errno)
 {

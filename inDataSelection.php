@@ -15,6 +15,7 @@ $fileName = str_replace('\\','/',$fileName); // 替换斜杠
 $handle = fopen($fileName, "r"); // 打开文件
 // Read first (headers) record only)
 $data = fgetcsv($handle, 1000, ",");
+
 $_SESSION['attrAllType'] = [];
 ?>
 <html>
